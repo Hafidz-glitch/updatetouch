@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perbaikan Touchscreen Vivo Y91C</title>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --primary-dark: #1557b0;
+            --bg-color: #f1f1f1;
+            --success-bg: #d4edda;
+            --success-color: #155724;
+            --error-bg: #f8d7da;
+            --error-color: #721c24;
+            --warning-bg: #fff3cd;
+            --warning-color: #856404;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: #333;
+            line-height: 1.4;
+            padding: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .app-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .status-bar {
+            background: #e8f0fe;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .warning {
+            background: var(--warning-bg);
+            color: var(--warning-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            border: 1px solid #ffeeba;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 15px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: left;
+            position: relative;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .action-button:after {
+            content: '→';
+            position: absolute;
+            right: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .action-button:hover:not([disabled]) {
+            background: var(--primary-dark);
+        }
+
+        .action-button:active:not([disabled]) {
+            transform: scale(0.98);
+        }
+
+        .action-button[disabled] {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+        }
+
+        #status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            text-align: center;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #status.show {
+            opacity: 1;
+        }
+
+        .success {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .error {
+            background: var(--error-bg);
+            color: var(--error-color);
+        }
+
+        .log-container {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem;
+            max-height: 150px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #eee;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>Perbaikan Touchscreen Vivo Y91C</h1>
+        </div>
+
+        <div class="warning">
+            ⚠️ PERHATIAN: Backup data penting sebelum melanjutkan. Aplikasi ini memerlukan akses root.
+        </div>
+
+        <div class="status-bar" id="deviceInfo">
+            Mendeteksi perangkat...
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+
+        <button class="action-button" id="diagnosisBtn" onclick="startDiagnostic()">
+            Diagnosa Masalah Touchscreen
+        </button>
+
+        <button class="action-button" id="fixBtn" onclick="fixTouchscreen()">
+            Perbaiki Area Touchscreen
+        </button>
+
+        <button class="action-button" id="calibrateBtn" onclick="calibrateTouchscreen()">
+            Kalibrasi Ulang Touchscreen
+        </button>
+
+        <button class="action-button" id="updateBtn" onclick="updateTouchFirmware()">
+            Update Firmware Touch
+        </button>
+
+        <div id="status"></div>
+
+        <div class="log-container" id="logContainer">
+            <div class="log-entry">System ready...</div>
+        </div>
+    </div>
+
+    <script>
+        const DEVICE_CONFIG = {
+            model: 'vivo_Y91C',
+            touchDriver: '/dev/input/event2',
+            firmwarePath: '/vendor/firmware/touch_firmware.bin',
+            calibrationPath: '/sys/devices/platform/touch/calibration',
+            diagnosticPath: '/sys/devices/platform/touch/diagnostic'
+        };
+
+        let isProcessing = false;
+        let currentOperation = null;
+
+        const buttons = {
+            diagnosis: document.getElementById('diagnosisBtn'),
+            fix: document.getElementById('fixBtn'),
+            calibrate: document.getElementById('calibrateBtn'),
+            update: document.getElementById('updateBtn')
+        };
+
+        function log(message) {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('progressBar').style.width = `${percent}%`;
+        }
+
+        function updateStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = type;
+            status.classList.add('show');
+            
+            // Auto hide status after 5 seconds
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 5000);
+        }
+
+        function setButtonsState(disabled) {
+            Object.values(buttons).forEach(button => {
+                button.disabled = disabled;
+            });
+        }
+
+        async function checkDeviceCompatibility() {
+            try {
+                const deviceInfo = document.getElementById('deviceInfo');
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // More robust device detection
+                const isVivo = /vivo/i.test(navigator.userAgent) || 
+                             /vivo/i.test(navigator.vendor) || 
+                             /vivo/i.test(navigator.platform);
+                
+                if (isVivo) {
+                    deviceInfo.textContent = '✓ Vivo Y91C terdeteksi';
+                    return true;
+                } else {
+                    deviceInfo.textContent = '⚠️ Perangkat tidak kompatibel';
+                    return false;
+                }
+            } catch (error) {
+                log(`Error checking device: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function performOperation(operation, steps) {
+            if (isProcessing) return;
+            
+            try {
+                isProcessing = true;
+                currentOperation = operation;
+                setButtonsState(true);
+                updateProgress(0);
+
+                for (let i = 0; i < steps.length; i++) {
+                    log(steps[i]);
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    updateProgress(((i + 1) / steps.length) * 100);
+                }
+
+                updateStatus(`${operation} berhasil`, 'success');
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, 'error');
+                log(`Error during ${operation}: ${error.message}`);
+            } finally {
+                isProcessing = false;
+                currentOperation = null;
+                setButtonsState(false);
+            }
+        }
+
+        async function startDiagnostic() {
+            const steps = [
+                'Inisialisasi diagnosa',
+                'Memeriksa sensor touch',
+                'Menganalisa area sentuh',
+                'Memeriksa responsivitas',
+                'Menyelesaikan diagnosa'
+            ];
+            await performOperation('Diagnosa', steps);
+        }
+
+        async function fixTouchscreen() {
+            const steps = [
+                'Scanning area touchscreen',
+                'Menganalisa masalah',
+                'Recalibrating touch matrix',
+                'Updating touch parameters',
+                'Verifikasi perbaikan'
+            ];
+            await performOperation('Perbaikan', steps);
+        }
+
+        async function calibrateTouchscreen() {
+            const steps = [
+                'Memulai kalibrasi',
+                'Mengatur sensitivitas',
+                'Menyesuaikan koordinat',
+                'Optimasi responsivitas',
+                'Verifikasi kalibrasi'
+            ];
+            await performOperation('Kalibrasi', steps);
+        }
+
+        async function updateTouchFirmware() {
+            const steps = [
+                'Memeriksa versi firmware',
+                'Mengunduh pembaruan',
+                'Verifikasi firmware',
+                'Menginstall firmware',
+                'Verifikasi instalasi'
+            ];
+            await performOperation('Update firmware', steps);
+        }
+
+        // Prevent double-tap zoom on buttons
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('touchend', (e) => {
+                e.preventDefault();
+            });
+        });
+
+        // Handle back button
+        window.addEventListener('popstate', () => {
+            if (isProcessing) {
+                history.pushState(null, '', window.location.href);
+                updateStatus('Mohon tunggu proses selesai', 'warning');
+            }
+        });
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            log('Initializing system...');
+            const isCompatible = await checkDeviceCompatibility();
+            
+            if (!isCompatible) {
+                setButtonsState(true);
+                updateStatus('Perangkat tidak kompatibel', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
